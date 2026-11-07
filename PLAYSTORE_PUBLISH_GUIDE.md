@@ -8,7 +8,7 @@ Import `Pirasannan/Raagam` into your Vercel account with the Next.js preset and 
 
 ```sh
 npm ci
-CAPACITOR_SERVER_URL=https://YOUR-ACTUAL-DEPLOYMENT.vercel.app npm run mobile:sync
+CAPACITOR_SERVER_URL=https://raagam-jet.vercel.app npm run mobile:sync
 ```
 
 Do not ship a mobile build pointing to the previous project's deployment or a guessed domain. The mobile apps require internet access.

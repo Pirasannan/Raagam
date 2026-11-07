@@ -1,5 +1,7 @@
 # Raagam
 
+Live website: **https://raagam-jet.vercel.app**
+
 Raagam is a Carnatic and Hindustani music discovery app built with Next.js, React, TypeScript, Tailwind CSS and the Web Audio API. Explore ragas, search songs, audition swaras and browse the music library without creating an account.
 
 The website and the Capacitor Android/iOS apps share the same web interface. The mobile apps load your HTTPS deployment and require internet access. This is not a bundled offline version of Next.js.
@@ -20,7 +22,8 @@ Open http://localhost:3000. Verify changes with `npm run build` and `npm run typ
 1. Sign in to Vercel and import `Pirasannan/Raagam` from GitHub.
 2. Keep the Next.js preset, repository root, `npm ci` install and `npm run build` build command. Use Node.js 22.
 3. Deploy. Vercel assigns the actual production URL; the project does not assume `raagam.vercel.app` is available.
-4. Optionally set `OPENAI_API_KEY` or `GEMINI_API_KEY` in the project's private environment settings, with the corresponding model variable. Redeploy after adding environment variables. The built-in library works without AI credentials. Visitors never supply credentials.
+4. The current production deployment is https://raagam-jet.vercel.app. The GitHub repository variable `CAPACITOR_SERVER_URL` points native CI builds at this address.
+5. Optionally set `OPENAI_API_KEY` or `GEMINI_API_KEY` in the project's private environment settings, with the corresponding model variable. Redeploy after adding environment variables. The built-in library works without AI credentials. Visitors never supply credentials.
 
 `.env.example` lists configuration names. Never commit real keys.
 
@@ -34,7 +37,7 @@ Open http://localhost:3000. Verify changes with `npm run build` and `npm run typ
 After deploying the website, sync the real URL into the native projects:
 
 ```sh
-CAPACITOR_SERVER_URL=https://YOUR-ACTUAL-DEPLOYMENT.vercel.app npm run mobile:sync
+CAPACITOR_SERVER_URL=https://raagam-jet.vercel.app npm run mobile:sync
 npm run android
 npm run ios
 ```
