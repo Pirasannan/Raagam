@@ -1,0 +1,41 @@
+name: Build Raagam iOS Simulator
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      server_url:
+        description: Actual HTTPS Vercel deployment URL
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  ios:
+    if: ${{ vars.CAPACITOR_SERVER_URL != '' || inputs.server_url != '' }}
+    runs-on: macos-latest
+    env:
+      CAPACITOR_SERVER_URL: ${{ inputs.server_url || vars.CAPACITOR_SERVER_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Sync actual website URL
+        run: npm run mobile:sync -- ios
+      - name: Build simulator app without distribution signing
+        run: >-
+          xcodebuild -project ios/App/App.xcodeproj -scheme App
+          -configuration Debug -sdk iphonesimulator
+          -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath build/ios CODE_SIGNING_ALLOWED=NO build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: raagam-ios-simulator
+          path: build/ios/Build/Products/Debug-iphonesimulator/App.app
+          if-no-files-found: error

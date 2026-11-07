@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Raagam</string>
+    <string name="title_activity_main">Raagam</string>
+    <string name="package_name">com.raagam.app</string>
+    <string name="custom_url_scheme">com.raagam.app</string>
+</resources>

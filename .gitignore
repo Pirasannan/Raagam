@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage
+
+# Next.js
+.next/
+out/
+
+# Production
+build
+
+# Misc
+.DS_Store
+*.pem
+
+# Local env files
+.env*.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Local credentials, signing and generated native files
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+*.mobileprovision
+*.p12
+android/.gradle/
+android/local.properties
+android/capacitor-cordova-android-plugins/
+android/app/src/main/assets/
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/**/xcuserdata/
+ios/**/.build/
+mobile-web/
+.vscode/
+# Runtime account data from the previous application
+/data/users.json
+/data/notification_logs.json
+/data/email_config.json
+
+/data/mistake_reports.json

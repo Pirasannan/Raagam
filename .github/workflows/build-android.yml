@@ -1,0 +1,78 @@
+name: Build Raagam Android
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      release:
+        description: Build a signed release using private repository secrets
+        type: boolean
+        default: false
+      server_url:
+        description: Actual HTTPS Vercel deployment URL
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    if: ${{ vars.CAPACITOR_SERVER_URL != '' || inputs.server_url != '' }}
+    runs-on: ubuntu-latest
+    env:
+      CAPACITOR_SERVER_URL: ${{ inputs.server_url || vars.CAPACITOR_SERVER_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Typecheck and build website
+        run: npm run build
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Sync actual website URL
+        run: npm run mobile:sync -- android
+      - name: Restore private signing key for a requested release
+        if: ${{ inputs.release }}
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          test -n "$KEYSTORE_BASE64" || { echo 'KEYSTORE_BASE64 secret is required'; exit 1; }
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/raagam-upload.jks"
+          echo "RAAGAM_KEYSTORE_PATH=$RUNNER_TEMP/raagam-upload.jks" >> "$GITHUB_ENV"
+      - name: Build debug APK
+        if: ${{ !inputs.release }}
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+      - name: Build signed APK and AAB
+        if: ${{ inputs.release }}
+        working-directory: android
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          test -n "$KEYSTORE_PASSWORD" && test -n "$KEY_ALIAS" && test -n "$KEY_PASSWORD"
+          chmod +x gradlew
+          ./gradlew assembleRelease bundleRelease --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: raagam-android
+          path: |
+            android/app/build/outputs/apk/**/*.apk
+            android/app/build/outputs/bundle/**/*.aab
+          if-no-files-found: error
+      - name: Remove temporary signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/raagam-upload.jks"
