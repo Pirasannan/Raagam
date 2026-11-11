@@ -1,0 +1,33 @@
+{
+  "score": 83,
+  "issues": [
+    {
+      "type": "warning",
+      "message": "Meta description too short (119 chars). Aim for 150-160 characters."
+    },
+    {
+      "type": "warning",
+      "message": "Multiple <h1> tags found (2). Best practice is to have only one."
+    },
+    {
+      "type": "warning",
+      "message": "2 image(s) missing alt text"
+    },
+    {
+      "type": "warning",
+      "message": "Canonical URL and og:url point to noxivolt.framer.website, a Framer subdomain. Once this site is live on your own domain, search engines will still treat that address as the original. Change them to each page's new URL."
+    }
+  ],
+  "passed": [
+    "Title tag is properly configured",
+    "Open Graph meta tags present",
+    "Viewport meta tag present",
+    "Language attribute set"
+  ],
+  "meta": {
+    "title": "Noxivolt — We Come Alive After Dark",
+    "description": "Underground sound, striking visuals and open-minded people. Noxivolt 001 — Signal in the Dark, 14 November 2026, Dhaka.",
+    "canonical": "https://noxivolt.framer.website/",
+    "ogImage": "https://framerusercontent.com/images/j1rtA2OGX8mb47QALAQdEUZC4SY.png"
+  }
+}
