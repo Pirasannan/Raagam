@@ -2,7 +2,31 @@
 
 Live website: **https://raagam-jet.vercel.app**
 
-Raagam is a Carnatic and Hindustani music discovery app built with Next.js, React, TypeScript, Tailwind CSS and the Web Audio API. Explore ragas, search songs, audition swaras and browse the music library without creating an account.
+Raagam is a Carnatic and Hindustani music discovery app built with Next.js, React, TypeScript, Tailwind CSS and the Web Audio API. Identify ragas by swaras, song or notes, play any scale, explore 908 janya ragas and the 72 melakartas, and practise with a tanpura — without creating an account.
+
+See [docs/FEATURES.md](docs/FEATURES.md) for a complete list of features.
+
+## Project structure
+
+```
+src/
+  app/                 Pages (App Router) and API routes
+    page.tsx           Home: hero, raga finder, explore sections
+    ragas/ melakarta/ radio/ practice/ updates/ downloads/ privacy/ admin/
+    api/identify-raga  Raga identification
+  components/
+    ui/                Design-system primitives (Button, Eyebrow, Segmented, Reveal…)
+    layout/            Navbar, Footer, PageHeader, Marquee
+    music/             ScaleNotes (notes light up as they play), BreathingOrb
+    finder/ ragas/ melakarta/ radio/ practice/ updates/ home/
+  hooks/useScalePlayer.ts
+  lib/
+    music/             Swara notation, 72 melakartas, raga catalogue/matcher, audio engine
+    identify/          Identification pipeline: song archive, MSIDB, curated notes, optional AI
+  data/                Bundled datasets
+```
+
+Identification is deterministic first: the song archive and the scale library answer whenever they can, and AI is only consulted when it is configured and nothing else matched. Nothing is invented when no match is found.
 
 The website and the Capacitor Android/iOS apps share the same web interface. The mobile apps load your HTTPS deployment and require internet access. This is not a bundled offline version of Next.js.
 
@@ -47,6 +71,10 @@ npm run ios
 Android requires the SDK/Java versions specified by the Gradle project. iOS requires macOS and Xcode. Xcode can build the simulator app without distribution signing; device/TestFlight/App Store distribution needs your Apple signing team. Store publication is a separate step from creating native projects.
 
 See [PLAYSTORE_PUBLISH_GUIDE.md](PLAYSTORE_PUBLISH_GUIDE.md) for Android signing and store preparation.
+
+## Design
+
+The interface follows the Serova reference design kept in `Serova/`: a warm canvas (`#f0eae2`), espresso brown (`#3a1a15`) and coral (`#e0583e`), Inter Tight with Instrument Serif italics. Colours and fonts are defined in `tailwind.config.js`, `src/app/layout.tsx` and `src/app/globals.css`. Animations are tied to sound (breathing drone, plucked strings, notes lighting up as they play) and switch off for visitors who prefer reduced motion.
 
 ## Logo
 

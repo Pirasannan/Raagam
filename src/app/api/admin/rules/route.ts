@@ -1,88 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminRules, saveAdminRule, deleteAdminRule, importRules } from '@/lib/storage';
-import { AdminRule } from '@/types/raga';
+import { deleteAdminRule, getAdminRules, importRules, saveAdminRule } from '@/lib/storage';
+import { isAdminRequest } from '@/lib/adminAuth';
+import type { AdminRule, Tradition } from '@/types/raga';
 
-function isAuthorized(req: NextRequest): boolean {
-  const authHeader = req.headers.get('x-admin-key');
-  const expectedKey = process.env.ADMIN_SECRET_KEY;
-  return Boolean(expectedKey) && authHeader === expectedKey;
+const unauthorized = () => NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+const strings = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string' && x.trim() !== '').map((x) => x.trim()) : []);
+
+/** Validates and normalises a rule from untrusted JSON. Returns null when required fields are missing. */
+function toRule(body: Record<string, unknown>): AdminRule | null {
+  const title = typeof body.title === 'string' ? body.title.trim() : '';
+  const correctRaga = typeof body.correctRaga === 'string' ? body.correctRaga.trim() : '';
+  const ruleInstruction = typeof body.ruleInstruction === 'string' ? body.ruleInstruction.trim() : '';
+  if (!title || !correctRaga || !ruleInstruction) return null;
+  const patternTypes: AdminRule['patternType'][] = ['swaras', 'song', 'phrase', 'correction'];
+  const traditions: Tradition[] = ['Both', 'Carnatic', 'Hindustani'];
+  return {
+    id: typeof body.id === 'string' && body.id ? body.id : `rule-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    createdAt: typeof body.createdAt === 'string' ? body.createdAt : new Date().toISOString(),
+    title,
+    patternType: patternTypes.includes(body.patternType as AdminRule['patternType']) ? (body.patternType as AdminRule['patternType']) : 'swaras',
+    swaraPattern: strings(body.swaraPattern).map((s) => s.toUpperCase()),
+    triggerKeywords: strings(body.triggerKeywords),
+    correctRaga,
+    tradition: traditions.includes(body.tradition as Tradition) ? (body.tradition as Tradition) : 'Both',
+    ruleInstruction,
+    severity: body.severity === 'disambiguation_hint' ? 'disambiguation_hint' : 'strict_override',
+    active: body.active !== false,
+  };
 }
 
 export async function GET(req: NextRequest) {
-  if (!isAuthorized(req)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const rules = await getAdminRules();
-  return NextResponse.json({ success: true, rules });
+  if (!isAdminRequest(req)) return unauthorized();
+  return NextResponse.json({ success: true, rules: await getAdminRules() });
 }
 
 export async function POST(req: NextRequest) {
-  if (!isAuthorized(req)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!isAdminRequest(req)) return unauthorized();
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== 'object') return NextResponse.json({ error: 'Body must be JSON' }, { status: 400 });
+
+  if (body.bulk === true) {
+    if (!Array.isArray(body.rules)) return NextResponse.json({ error: 'rules must be an array' }, { status: 400 });
+    const rules = body.rules.map((r: Record<string, unknown>) => toRule(r ?? {}));
+    if (rules.some((r: AdminRule | null) => r === null)) {
+      return NextResponse.json({ error: 'Every rule needs a title, correctRaga and ruleInstruction' }, { status: 400 });
+    }
+    return NextResponse.json({ success: true, imported: await importRules(rules) });
   }
 
-  try {
-    const body = await req.json();
-
-    // Handle bulk import
-    if (body.bulk && Array.isArray(body.rules)) {
-      const count = await importRules(body.rules);
-      return NextResponse.json({ success: true, imported: count });
-    }
-
-    // Single rule save/update
-    const rule: AdminRule = {
-      id: body.id || `rule-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-      createdAt: body.createdAt || new Date().toISOString(),
-      title: body.title,
-      patternType: body.patternType || 'swaras',
-      swaraPattern: body.swaraPattern || [],
-      triggerKeywords: body.triggerKeywords || [],
-      correctRaga: body.correctRaga,
-      tradition: body.tradition || 'Both',
-      ruleInstruction: body.ruleInstruction,
-      severity: body.severity || 'strict_override',
-      active: body.active !== undefined ? body.active : true,
-    };
-
-    if (!rule.title || !rule.correctRaga || !rule.ruleInstruction) {
-      return NextResponse.json(
-        { error: 'title, correctRaga, and ruleInstruction are required' },
-        { status: 400 }
-      );
-    }
-
-    const saved = await saveAdminRule(rule);
-    return NextResponse.json({ success: true, rule: saved });
-  } catch (error: any) {
-    console.error('Error saving admin rule:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to save rule' },
-      { status: 500 }
-    );
-  }
+  const rule = toRule(body);
+  if (!rule) return NextResponse.json({ error: 'title, correctRaga and ruleInstruction are required' }, { status: 400 });
+  return NextResponse.json({ success: true, rule: await saveAdminRule(rule) });
 }
 
 export async function DELETE(req: NextRequest) {
-  if (!isAuthorized(req)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  try {
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
-
-    if (!id) {
-      return NextResponse.json({ error: 'Rule ID is required' }, { status: 400 });
-    }
-
-    await deleteAdminRule(id);
-    return NextResponse.json({ success: true, deletedId: id });
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || 'Failed to delete rule' },
-      { status: 500 }
-    );
-  }
+  if (!isAdminRequest(req)) return unauthorized();
+  const id = req.nextUrl.searchParams.get('id');
+  if (!id) return NextResponse.json({ error: 'Rule id is required' }, { status: 400 });
+  await deleteAdminRule(id);
+  return NextResponse.json({ success: true, deletedId: id });
 }

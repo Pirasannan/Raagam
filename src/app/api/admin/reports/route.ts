@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getMistakeReports, updateMistakeReportStatus, saveAdminRule } from '@/lib/storage';
+import { isAdminRequest } from '@/lib/adminAuth';
 import { AdminRule } from '@/types/raga';
 
-function isAuthorized(req: NextRequest): boolean {
-  const authHeader = req.headers.get('x-admin-key');
-  const expectedKey = process.env.ADMIN_SECRET_KEY;
-  return Boolean(expectedKey) && authHeader === expectedKey;
-}
 
 export async function GET(req: NextRequest) {
-  if (!isAuthorized(req)) {
+  if (!isAdminRequest(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -18,7 +14,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!isAuthorized(req)) {
+  if (!isAdminRequest(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -60,11 +56,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ error: 'Invalid action or missing convertToRule' }, { status: 400 });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error updating report:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to update report' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to update report' }, { status: 500 });
   }
 }

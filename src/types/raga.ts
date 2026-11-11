@@ -26,17 +26,15 @@ export interface Raga {
   description?: string;
 }
 
+export type IdentifyMode = 'swaras' | 'song' | 'description';
+
 export interface IdentifyRequest {
-  mode: 'swaras' | 'song' | 'description';
-  swaras?: string[]; // Selected swaras e.g. ['S', 'R1', 'G3', 'M1', 'P', 'D1', 'N3']
-  arohana?: string;
-  avarohana?: string;
+  mode: IdentifyMode;
+  /** Selected swaras, e.g. ['S', 'R1', 'G3', 'M1', 'P', 'D1', 'N3']. */
+  swaras?: string[];
   songQuery?: string;
   description?: string;
   traditionPreference?: Tradition;
-  aiApiKey?: string;
-  aiProvider?: 'gemini' | 'openai';
-  aiModel?: string;
 }
 
 export interface SongRagaEntry {
@@ -79,23 +77,44 @@ export interface RagaProfile {
   closelyRelatedRagas?: string[];
 }
 
+/** Where an answer came from, shown to the user so they can judge it. */
+export type IdentifySource = 'song_archive' | 'curated' | 'scale_match' | 'admin_rule' | 'ai';
+
+export interface RagaAlternative {
+  name: string;
+  kind: 'melakarta' | 'janya';
+  melakartaNumber: number;
+  melakartaName: string;
+  arohana: string;
+  avarohana: string;
+  exact: boolean;
+}
+
 export interface IdentifyResponse {
   success: boolean;
-  source: 'openai' | 'gemini' | 'admin_rule' | 'database' | 'ai_musicologist';
+  source: IdentifySource;
   confidence: 'Exact Match' | 'High' | 'Moderate' | 'Low';
   raga: RagaProfile;
   isMultiRaga?: boolean;
   ragas?: RagaProfile[];
   matchedSong?: SongRagaEntry;
+  /** Other ragas that fit the same swaras (scale searches only). */
+  alternatives?: RagaAlternative[];
   appliedAdminRule?: {
     id: string;
     title: string;
     reason: string;
   };
-  rawQuery: any;
-  needsAiActivation?: boolean;
-  aiProvider?: 'gemini' | 'openai' | 'none';
-  unindexedSongTitle?: string;
+  rawQuery: IdentifyRequest;
+  aiProvider?: 'gemini' | 'openai';
+}
+
+/** Returned when nothing could be identified. */
+export interface IdentifyMiss {
+  success: false;
+  notFound: true;
+  message: string;
+  rawQuery: IdentifyRequest;
 }
 
 export interface AdminRule {
@@ -115,7 +134,7 @@ export interface AdminRule {
 export interface MistakeReport {
   id: string;
   timestamp: string;
-  query: any;
+  query: Partial<IdentifyRequest>;
   aiSuggestedRaga: string;
   userCorrection: {
     correctRaga: string;

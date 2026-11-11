@@ -1,49 +1,21 @@
 {
-  "name": "Raagam - Carnatic & Hindustani Musicology",
+  "name": "Raagam — Find and learn Indian classical ragas",
   "short_name": "Raagam",
-  "description": "Identify Carnatic & Hindustani ragas by notes, search thousands of classical & cinema songs, and listen to 90 live Raga Radio stations.",
+  "description": "Find Carnatic and Hindustani ragas by swaras, song or notes. 908 janya ragas, 72 melakartas, raga radio and a tanpura drone.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1c1917",
-  "theme_color": "#d97706",
+  "background_color": "#f0eae2",
+  "theme_color": "#f0eae2",
   "orientation": "portrait-primary",
   "scope": "/",
-  "categories": ["music", "education", "entertainment"],
+  "categories": ["music", "education"],
   "icons": [
-    {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
   "shortcuts": [
-    {
-      "name": "Raga Radio",
-      "short_name": "Radio",
-      "description": "Stream 90 classical & film raga stations",
-      "url": "/?tab=radio",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "908 Ragas Explorer",
-      "short_name": "Ragas",
-      "description": "Browse 908 Melakarta and Janya ragas",
-      "url": "/?tab=ragas",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "SOS Musician Rescue",
-      "short_name": "SOS",
-      "description": "Fast raga identification during live concerts",
-      "url": "/?tab=sos",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
-    }
+    { "name": "Raga library", "short_name": "Ragas", "url": "/ragas", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Raga radio", "short_name": "Radio", "url": "/radio", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Tanpura drone", "short_name": "Tanpura", "url": "/practice", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
   ]
 }
