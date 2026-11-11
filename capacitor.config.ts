@@ -12,10 +12,10 @@ const config: CapacitorConfig = {
   ...(serverUrl ? { server: { url: serverUrl, cleartext: false } } : {}),
   android: {
     allowMixedContent: false,
-    backgroundColor: '#1c1917',
+    backgroundColor: '#f0eae2',
   },
   ios: {
-    backgroundColor: '#1c1917',
+    backgroundColor: '#f0eae2',
     contentInset: 'automatic',
   },
 };

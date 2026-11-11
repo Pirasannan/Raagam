@@ -1,22 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isAdminKey } from '@/lib/adminAuth';
 
 export async function POST(req: NextRequest) {
-  try {
-    const { secretKey } = await req.json();
-    const expectedKey = process.env.ADMIN_SECRET_KEY;
-
-    if (expectedKey && secretKey === expectedKey) {
-      return NextResponse.json({ success: true, authorized: true });
-    } else {
-      return NextResponse.json(
-        { success: false, authorized: false, error: 'Invalid admin secret key' },
-        { status: 401 }
-      );
-    }
-  } catch {
-    return NextResponse.json(
-      { success: false, error: 'Invalid request' },
-      { status: 400 }
-    );
-  }
+  const body = await req.json().catch(() => null);
+  const authorized = isAdminKey(typeof body?.secretKey === 'string' ? body.secretKey : null);
+  return NextResponse.json({ authorized }, { status: authorized ? 200 : 401 });
 }

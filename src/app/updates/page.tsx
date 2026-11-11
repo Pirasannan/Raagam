@@ -1,16 +1,24 @@
-import React from 'react';
-import UpdatesTab from '@/components/UpdatesTab';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { NewSongs } from '@/components/updates/NewSongs';
 
 export const metadata: Metadata = {
-  title: 'Malayalam Film Songs Live Updates | Raagam',
-  description: 'Live Spotify updates for brand new Malayalam film songs, trending Mollywood tracks, movie releases, and chartbusters with Raga analysis.',
+  title: 'New Malayalam songs',
+  description: 'Spotify playlists of new Malayalam film songs, with a quick way to look up the raga of any song.',
 };
 
 export default function UpdatesPage() {
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
-      <UpdatesTab />
-    </div>
+    <>
+      <PageHeader
+        eyebrow="New songs"
+        title="New Malayalam songs,"
+        accent="as they are released."
+        description="Spotify's Malayalam playlists, gathered in one place. When a melody catches you, look up its raga."
+      />
+      <div className="container-page pb-24">
+        <NewSongs />
+      </div>
+    </>
   );
 }

@@ -1,52 +1,51 @@
 import type { Metadata, Viewport } from 'next';
+import { Inter_Tight, Instrument_Serif } from 'next/font/google';
 import './globals.css';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { Navbar } from '@/components/layout/Navbar';
+import { Footer } from '@/components/layout/Footer';
+import { SITE } from '@/lib/site';
+
+const sans = Inter_Tight({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
+const serif = Instrument_Serif({
+  subsets: ['latin'],
+  weight: '400',
+  style: ['normal', 'italic'],
+  variable: '--font-serif',
+  display: 'swap',
+});
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 5,
   viewportFit: 'cover',
-  themeColor: '#faf5eb',
+  themeColor: '#f0eae2',
 };
 
 export const metadata: Metadata = {
-  title: 'Raagam - Discover Carnatic & Hindustani Ragas',
-  description:
-    'Discover Indian classical ragas by swaras, song titles, or notes. Explore Carnatic and Hindustani music with audio previews. No sign-in required.',
-  keywords: [
-    'Raagam',
-    'Carnatic Ragas',
-    'Hindustani Ragas',
-    'OpenAI Raga Identification',
-    '72 Melakarta',
-    'Swaras',
-    'Arohana Avarohana',
-    'Indian Classical Music',
-  ],
+  metadataBase: new URL(SITE.url),
+  title: { default: 'Raagam — Find and learn Indian classical ragas', template: '%s · Raagam' },
+  description: SITE.description,
+  keywords: ['Raagam', 'Carnatic ragas', 'Hindustani ragas', 'raga finder', '72 melakarta', 'janya ragas', 'swaras', 'tanpura'],
   manifest: '/manifest.json',
-  icons: {
-    icon: '/icon-192.png',
-    apple: '/icon-192.png',
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'Raagam',
-  },
+  icons: { icon: '/icon-192.png', apple: '/icon-192.png' },
+  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'Raagam' },
+  openGraph: { title: 'Raagam', description: SITE.description, url: SITE.url, siteName: 'Raagam', type: 'website' },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="antialiased min-h-screen flex flex-col bg-music-pattern text-stone-900 selection:bg-amber-200 selection:text-amber-900 pb-20 lg:pb-0">
+    <html lang="en" className={`${sans.variable} ${serif.variable}`}>
+      <body className="flex min-h-screen flex-col">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-xl focus:bg-espresso focus:px-4 focus:py-2 focus:text-surface"
+        >
+          Skip to content
+        </a>
         <Navbar />
-        <div className="flex-1">{children}</div>
+        <main id="main" className="flex-1">
+          {children}
+        </main>
         <Footer />
       </body>
     </html>

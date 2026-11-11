@@ -11,6 +11,12 @@ const nextConfig = {
       './data/mistake_reports.json',
     ],
   },
+  async redirects() {
+    return [
+      { source: '/sos', destination: '/practice', permanent: true },
+      { source: '/raga-radio', destination: '/radio', permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
