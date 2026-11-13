@@ -32,14 +32,36 @@ The website and the Capacitor Android/iOS apps share the same web interface. The
 
 ## Run locally
 
-Use Node.js 22 (see `.nvmrc`).
+You only need Node.js 22 (see `.nvmrc`) and npm. No database, account or API key is required.
+
+1. Install the packages:
+
+   ```sh
+   npm ci
+   ```
+
+2. Start the dev server:
+
+   ```sh
+   npm run dev
+   ```
+
+3. Open http://localhost:3000 in your browser.
+
+The page reloads automatically when you edit a file. Press `Ctrl+C` in the terminal to stop the server.
+
+Useful commands:
 
 ```sh
-npm ci
-npm run dev
+npm run typecheck   # check TypeScript types
+npm run build       # production build (run this before deploying)
+npm run start       # serve the production build on port 3000 (after npm run build)
+npm run smoke       # quick test against a running server on localhost:3000
 ```
 
-Open http://localhost:3000. Verify changes with `npm run build` and `npm run typecheck`.
+Optional settings: copy `.env.example` to `.env.local` and uncomment what you need. This is only for AI raga matching (`OPENAI_API_KEY` or `GEMINI_API_KEY`) and the owner-only `/admin` page (`ADMIN_SECRET_KEY`). The app works fine without any of them.
+
+If port 3000 is busy, run `npm run dev -- -p 3001` and open http://localhost:3001.
 
 ## Deploy on Vercel
 
